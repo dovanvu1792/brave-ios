@@ -228,7 +228,11 @@ class SettingsViewController: TableViewController {
                     }
                     }, image: #imageLiteral(resourceName: "settings-sync").template, accessory: .disclosureIndicator,
                        cellClass: MultilineValue1Cell.self),
-                .boolRow(title: Strings.bookmarksLastVisitedFolderTitle, option: Preferences.General.showLastVisitedBookmarksFolder, image: #imageLiteral(resourceName: "menu_folder_open").template)
+                .boolRow(title: Strings.bookmarksLastVisitedFolderTitle, option: Preferences.General.showLastVisitedBookmarksFolder, image: #imageLiteral(resourceName: "menu_folder_open").template),
+                Row(text: "Siri Shortcuts", selection: { [unowned self] in
+                    let viewController = SearchSettingsTableViewController(profile: self.profile)
+                    self.navigationController?.pushViewController(viewController, animated: true)
+                }, image: #imageLiteral(resourceName: "settings-siri-shortcuts").template, accessory: .disclosureIndicator, cellClass: MultilineValue1Cell.self)
             ]
         )
         
@@ -248,12 +252,6 @@ class SettingsViewController: TableViewController {
                 UIApplication.shared.open(settingsUrl)
             }, cellClass: MultilineButtonCell.self))
         }
-        
-        general.rows.append(
-            .boolRow(title: Strings.alwaysRequestDesktopSite,
-                     option: Preferences.General.alwaysRequestDesktopSite,
-                     image: #imageLiteral(resourceName: "settings-desktop-always").template)
-        )
         
         return general
     }()
