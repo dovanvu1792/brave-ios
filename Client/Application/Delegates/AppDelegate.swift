@@ -648,6 +648,11 @@ extension AppDelegate {
                     type: .clearBrowsingHistory, using: browserViewController)
                 
                 return true
+            case ActivityType.enableBraveVPN.identifier:
+                ActivityShortcutManager.shared.performShortcutActivity(
+                    type: .enableBraveVPN, using: browserViewController)
+                
+                return true
             default:
                 break
         }
