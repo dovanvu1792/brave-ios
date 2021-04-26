@@ -331,7 +331,7 @@ class BraveShieldsAndPrivacySettingsController: TableViewController {
                     if historyCleared {
                         self.tabManager.clearTabHistory()
                         
-                        /// Donate clearing browser history for suggestions
+                        /// Donate Clear Browser History for suggestions
                         let clearBrowserHistoryActivity = ActivityShortcutManager.shared.createShortcutActivity(type: .clearBrowsingHistory)
                         self.userActivity = clearBrowserHistoryActivity
                         clearBrowserHistoryActivity.becomeCurrent()
