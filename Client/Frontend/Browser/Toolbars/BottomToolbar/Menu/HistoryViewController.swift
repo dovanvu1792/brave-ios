@@ -138,7 +138,7 @@ class HistoryViewController: SiteTableViewController, ToolbarUrlActionsProtocol 
         
         return cell
     }
-    
+
     func configureCell(_ _cell: UITableViewCell, atIndexPath indexPath: IndexPath) {
         guard let cell = _cell as? TwoLineTableViewCell else { return }
         
