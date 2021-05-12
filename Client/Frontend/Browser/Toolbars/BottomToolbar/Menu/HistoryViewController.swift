@@ -16,7 +16,7 @@ class HistoryViewController: SiteTableViewController, ToolbarUrlActionsProtocol 
     weak var toolbarUrlActionsDelegate: ToolbarUrlActionsDelegate?
     
     private lazy var emptyStateOverlayView = UIView().then {
-        $0.backgroundColor = .secondaryBraveBackgroundsec
+        $0.backgroundColor = UIColor.white
     }
     
     private let spinner = UIActivityIndicatorView().then {
@@ -101,6 +101,13 @@ class HistoryViewController: SiteTableViewController, ToolbarUrlActionsProtocol 
         }
     }
     
+    fileprivate func createEmptyStateOverview() -> UIView {
+        let overlayView = UIView()
+        overlayView.backgroundColor = .white
+        
+        return overlayView
+    }
+    
     fileprivate func updateEmptyPanelState() {
         if  historyFRC?.fetchedObjectsCount == 0 {
             if emptyStateOverlayView.superview == nil {
@@ -138,7 +145,7 @@ class HistoryViewController: SiteTableViewController, ToolbarUrlActionsProtocol 
         
         return cell
     }
-
+    
     func configureCell(_ _cell: UITableViewCell, atIndexPath indexPath: IndexPath) {
         guard let cell = _cell as? TwoLineTableViewCell else { return }
         
