@@ -1427,11 +1427,10 @@ class BrowserViewController: UIViewController {
             ]
             
             SecTrustSetPolicies(serverTrust, policies as CFTypeRef)
-            SecTrustEvaluateAsync(serverTrust, DispatchQueue.global()) { _, secTrustResult in
-                switch secTrustResult {
-                case .proceed, .unspecified:
+            SecTrustEvaluateAsyncWithError(serverTrust, DispatchQueue.global()) { _, secTrustResult, _ in
+                if secTrustResult {
                     tab.secureContentState = .secure
-                default:
+                } else {
                     tab.secureContentState = .insecure
                 }
 

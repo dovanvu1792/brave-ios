@@ -24,7 +24,7 @@ class BraveTodayAddSourceViewController: UITableViewController {
             }
         }
     }
-    private let activityIndicator = UIActivityIndicatorView(style: .gray).then {
+    private let activityIndicator = UIActivityIndicatorView(style: .medium).then {
         $0.hidesWhenStopped = true
     }
     

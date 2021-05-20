@@ -9,7 +9,7 @@ import BraveShared
 
 // MARK: - SearchViewControllerDelegate
 
-protocol SearchViewControllerDelegate: class {
+protocol SearchViewControllerDelegate: AnyObject {
     func searchViewController(_ searchViewController: SearchViewController, didSelectURL url: URL)
     func searchViewController(_ searchViewController: SearchViewController, didLongPressSuggestion suggestion: String)
     func presentSearchSettingsController()
@@ -191,10 +191,10 @@ class SearchViewController: SiteTableViewController, LoaderListener {
     private func animateSearchEnginesWithKeyboard(_ keyboardState: KeyboardState) {
         layoutSearchEngineScrollView()
 
-        UIView.animate(withDuration: keyboardState.animationDuration, animations: {
-            UIView.setAnimationCurve(keyboardState.animationCurve)
+        UIViewPropertyAnimator(duration: keyboardState.animationDuration, curve: keyboardState.animationCurve) {
             self.view.layoutIfNeeded()
-        })
+        }
+        .startAnimation()
     }
 
     @objc func dynamicFontChanged(_ notification: Notification) {

@@ -27,7 +27,7 @@ private struct SuggestionCellUX {
 
 // MARK: - SuggestionCelDelegate
 
-protocol SuggestionCellDelegate: class {
+protocol SuggestionCellDelegate: AnyObject {
     func suggestionCell(_ suggestionCell: SuggestionCell, didSelectSuggestion suggestion: String)
     func suggestionCell(_ suggestionCell: SuggestionCell, didLongPressSuggestion suggestion: String)
 }
