@@ -51,7 +51,7 @@ class Migration {
             return
         }
         
-        BraveSyncProfileService.shared.userSelectedTypes = [.HISTORY, .BOOKMARKS]
+        BraveSyncAPI.shared.enableSyncTypes()
     }
     
     static func moveDatabaseToApplicationDirectory() {
