@@ -11,10 +11,17 @@ import Shared
 extension BrowserViewController {
     func featuresMenuSection(_ menuController: MenuViewController) -> some View {
         VStack(spacing: 0) {
-            VPNMenuButton(vpnProductInfo: self.vpnProductInfo) { vc in
-                (self.presentedViewController as? MenuViewController)?
-                    .pushViewController(vc, animated: true)
-            }
+            VPNMenuButton(vpnProductInfo: self.vpnProductInfo,
+                          displayVPNDestination: { vc in
+                            (self.presentedViewController as? MenuViewController)?
+                                .pushViewController(vc, animated: true)
+                          },
+                          enableInstalledVPN: { [unowned menuController] in
+                            /// Donate Enable VPN Activity for suggestions
+                            let enableVPNActivity = ActivityShortcutManager.shared.createShortcutActivity(type: .enableBraveVPN)
+                            menuController.userActivity = enableVPNActivity
+                            enableVPNActivity.becomeCurrent()
+                          })
         }
     }
     
