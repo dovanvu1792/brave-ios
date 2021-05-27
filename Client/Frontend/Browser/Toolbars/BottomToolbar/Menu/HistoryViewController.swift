@@ -212,7 +212,7 @@ class HistoryViewController: SiteTableViewController, ToolbarUrlActionsProtocol 
         
         if let historyURL = historyItem.url, let url = URL(string: historyURL) {
             dismiss(animated: true) {
-                self.toolbarUrlActionsDelegate?.select(url: url, isBookmark: false)
+                self.toolbarUrlActionsDelegate?.select(url: url, visitType: .typed)
             }
         }
         
