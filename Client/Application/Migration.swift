@@ -37,8 +37,8 @@ class Migration {
         if !Preferences.Migration.playlistV1FileSettingsLocationCompleted.value {
             movePlaylistV1Items()
         }
-        // Adding Observer to enable sync types
         
+        // Adding Observer to enable sync types 
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(enableUserSelectedTypesForSync), name: NSNotification.Name(rawValue: BraveServiceStateObserver.coreServiceLoadedNotification),
