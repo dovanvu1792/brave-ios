@@ -149,6 +149,7 @@ extension Preferences {
         static let shouldShowRecentSearchesOptIn = Option<Bool>(key: "search.should-show-recent-searches.opt-in", default: true)
     }
     final class Privacy {
+        static let lockWithPasscode = Option<Bool>(key: "privacy.lock-with-passcode", default: false)
         /// Forces all private tabs
         static let privateBrowsingOnly = Option<Bool>(key: "privacy.private-only", default: false)
         /// Blocks all cookies and access to local storage
