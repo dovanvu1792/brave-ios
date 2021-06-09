@@ -185,6 +185,10 @@ class Tab: NSObject {
     
     /// A helper property that handles native to Brave Search communication.
     var braveSearchManager: BraveSearchManager?
+    
+    private lazy var refreshControl = UIRefreshControl().then {
+        $0.addTarget(self, action: #selector(reload), for: .valueChanged)
+    }
 
     func createWebview() {
         if webView == nil {
@@ -417,12 +421,19 @@ class Tab: NSObject {
         webView?.stopLoading()
     }
 
-    func reload() {
+    @objc func reload() {
         // Clear the user agent before further navigation.
         // Proper User Agent setting happens in BVC's WKNavigationDelegate.
         // This prevents a bug with back-forward list, going back or forward and reloading the tab
         // loaded wrong user agent.
         webView?.customUserAgent = nil
+        
+        defer {
+            if let refreshControl = webView?.scrollView.refreshControl,
+               refreshControl.isRefreshing {
+                refreshControl.endRefreshing()
+            }
+        }
         
         // Refreshing error, safe browsing warning pages.
         if let originalUrlFromErrorUrl = webView?.url?.originalURLFromErrorURL {
@@ -548,6 +559,8 @@ class Tab: NSObject {
             return
         }
 
+        webView.scrollView.refreshControl = url.isLocalUtility ? nil : refreshControl
+        
         self.urlDidChangeDelegate?.tab(self, urlDidChangeTo: url)
     }
 
