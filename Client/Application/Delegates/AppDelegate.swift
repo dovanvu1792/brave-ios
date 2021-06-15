@@ -52,6 +52,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
     
     /// Must be added at launch according to Apple's documentation.
     let iapObserver = IAPObserver()
+    
+    var carPlayManager: PlaylistCarplayManager?
 
     @discardableResult func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Hold references to willFinishLaunching parameters for delayed app launch
@@ -373,6 +375,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
         
         AdblockResourceDownloader.shared.startLoading()
         PlaylistManager.shared.restoreSession()
+        carPlayManager = PlaylistCarplayManager()
       
         return shouldPerformAdditionalDelegateHandling
     }
