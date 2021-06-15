@@ -232,9 +232,12 @@ extension PlaylistMediaInfo: MPPlayableContentDelegate {
             }
         } else {
             // Load from the cache since this item was downloaded before..
-            let asset = PlaylistManager.shared.assetAtIndex(index)
-            self.playerView?.load(asset: asset, autoPlayEnabled: autoPlayEnabled)
-            completion(.none)
+            if let asset = PlaylistManager.shared.assetAtIndex(index) {
+                self.playerView?.load(asset: asset, autoPlayEnabled: autoPlayEnabled)
+                completion(.none)
+            } else {
+                completion(.expired)
+            }
         }
     }
 }

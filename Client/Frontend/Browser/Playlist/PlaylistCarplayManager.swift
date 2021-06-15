@@ -12,6 +12,7 @@ import SDWebImage
 import Shared
 import Data
 
+/*
 class PlaylistCarplayManager: NSObject {
     private let contentManager = MPPlayableContentManager.shared()
     public let videoView = VideoView()
@@ -30,24 +31,6 @@ class PlaylistCarplayManager: NSObject {
             self.contentManager.beginUpdates()
             self.contentManager.endUpdates()
             self.contentManager.reloadData()
-        }
-        
-        MPRemoteCommandCenter.shared().pauseCommand.addTarget { [weak self] _ in
-            guard let self = self else { return .commandFailed }
-            MPNowPlayingInfoCenter.default().playbackState = self.videoView.isPlaying ? .playing : .paused
-            return .success
-        }
-        
-        MPRemoteCommandCenter.shared().playCommand.addTarget { [weak self] _ in
-            guard let self = self else { return .commandFailed }
-            MPNowPlayingInfoCenter.default().playbackState = self.videoView.isPlaying ? .playing : .paused
-            return .success
-        }
-        
-        MPRemoteCommandCenter.shared().stopCommand.addTarget { [weak self] _ in
-            guard let self = self else { return .commandFailed }
-            MPNowPlayingInfoCenter.default().playbackState = self.videoView.isPlaying ? .playing : .paused
-            return .success
         }
     }
     
@@ -160,81 +143,6 @@ extension PlaylistCarplayManager: MPPlayableContentDataSource {
     }
 }
 
-extension PlaylistCarplayManager {
-    private func loadThumbnail(item: PlaylistInfo, contentItem: MPContentItem) {
-        guard let url = URL(string: item.src) else { return }
-        
-        if let cachedImage = SDImageCache.shared.imageFromCache(forKey: url.absoluteString) {
-            contentItem.artwork = MPMediaItemArtwork(boundsSize: cachedImage.size, requestHandler: { _ -> UIImage in
-                return cachedImage
-            })
-            
-            contentItem.thumbnailGenerator = nil
-            return
-        }
-        
-        // Loading from Cache failed, attempt to fetch HLS thumbnail
-        contentItem.thumbnailGenerator = HLSThumbnailGenerator(url: url, time: 3, completion: { [weak self, weak contentItem] image, error in
-            guard let self = self, let contentItem = contentItem else { return }
-            
-            contentItem.thumbnailGenerator = nil
-            
-            if let image = image {
-                contentItem.artwork = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { _ -> UIImage in
-                    return image
-                })
-                contentItem.thumbnailGenerator = nil
-                SDImageCache.shared.store(image, forKey: url.absoluteString, completion: nil)
-            } else {
-                // We can fall back to AVAssetImageGenerator or FavIcon
-                self.loadThumbnailFallbackImage(item: item, contentItem: contentItem)
-            }
-        })
-    }
-    
-    // Fall back to AVAssetImageGenerator
-    // If that fails, fallback to FavIconFetcher
-    private func loadThumbnailFallbackImage(item: PlaylistInfo, contentItem: MPContentItem) {
-        guard let url = URL(string: item.src) else { return }
-
-        let time = CMTimeMake(value: 3, timescale: 1)
-        contentItem.imageAssetGenerator = AVAssetImageGenerator(asset: AVAsset(url: url))
-        contentItem.imageAssetGenerator?.appliesPreferredTrackTransform = false
-        contentItem.imageAssetGenerator?.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { [weak contentItem] _, cgImage, _, result, error in
-            guard let contentItem = contentItem else { return }
-            
-            contentItem.imageAssetGenerator = nil
-            if result == .succeeded, let cgImage = cgImage {
-                let image = UIImage(cgImage: cgImage)
-
-                DispatchQueue.main.async {
-                    contentItem.artwork = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { _ -> UIImage in
-                        return image
-                    })
-                    SDImageCache.shared.store(image, forKey: url.absoluteString, completion: nil)
-                }
-            } else {
-                guard let url = URL(string: item.pageSrc) else { return }
-                
-                DispatchQueue.main.async {
-                    contentItem.favIconFetcher = FavIconImageRenderer()
-                    contentItem.favIconFetcher?.loadIcon(siteURL: url) { icon in
-                        defer { contentItem.favIconFetcher = nil }
-                        guard let icon = icon else {
-                            contentItem.artwork = nil
-                            return
-                        }
-                        
-                        contentItem.artwork = MPMediaItemArtwork(boundsSize: icon.size, requestHandler: { _ -> UIImage in
-                            return icon
-                        })
-                    }
-                }
-            }
-        }
-    }
-}
-
 extension MPContentItem {
     private struct AssociatedKeys {
         static var thumbnailGenerator: Int = 0
@@ -257,67 +165,4 @@ extension MPContentItem {
         set { objc_setAssociatedObject(self, &AssociatedKeys.favIconFetcher, newValue, .OBJC_ASSOCIATION_ASSIGN) }
     }
 }
-
-class FavIconImageRenderer {
-    private var task: DispatchWorkItem?
-    
-    deinit {
-        task?.cancel()
-    }
-
-    func loadIcon(siteURL: URL, completion: ((UIImage?) -> Void)?) {
-        task?.cancel()
-        task = DispatchWorkItem {
-            let faviconFetcher: FaviconFetcher? = FaviconFetcher(siteURL: siteURL, kind: .favicon, domain: nil)
-            faviconFetcher?.load() { [weak self] _, attributes in
-                guard let self = self,
-                      let cancellable = self.task,
-                      !cancellable.isCancelled  else {
-                    completion?(nil)
-                    return
-                }
-                
-                if let image = attributes.image {
-                    let finalImage = self.renderOnImageContext { context, rect in
-                        if let backgroundColor = attributes.backgroundColor {
-                            context.setFillColor(backgroundColor.cgColor)
-                        }
-                        
-                        if let image = image.cgImage {
-                            context.draw(image, in: rect)
-                        }
-                    }
-                    
-                    completion?(finalImage)
-                } else {
-                    // Monogram favicon attributes
-                    let label = UILabel().then {
-                        $0.textColor = .white
-                        $0.backgroundColor = .clear
-                        $0.minimumScaleFactor = 0.5
-                    }
-                    
-                    label.text = FaviconFetcher.monogramLetter(
-                        for: siteURL,
-                        fallbackCharacter: nil
-                    )
-                    
-                    let finalImage = self.renderOnImageContext { context, _ in
-                        label.layer.render(in: context)
-                    }
-                    
-                    completion?(finalImage)
-                }
-            }
-        }
-    }
-    
-    private func renderOnImageContext(_ draw: (CGContext, CGRect) -> Void) -> UIImage? {
-        let size = CGSize(width: 100.0, height: 100.0)
-        UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
-        draw(UIGraphicsGetCurrentContext()!, CGRect(size: size))
-        let img = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return img
-    }
-}
+*/

@@ -40,13 +40,18 @@ class PlaylistManager: NSObject {
         frc.fetchedObjects?.count ?? 0
     }
     
-    func itemAtIndex(_ index: Int) -> PlaylistInfo {
-        PlaylistInfo(item: frc.object(at: IndexPath(row: index, section: 0)))
+    func itemAtIndex(_ index: Int) -> PlaylistInfo? {
+        if index < numberOfAssets {
+            return PlaylistInfo(item: frc.object(at: IndexPath(row: index, section: 0)))
+        }
+        return nil
     }
     
-    func assetAtIndex(_ index: Int) -> AVURLAsset {
-        let item = itemAtIndex(index)
-        return asset(for: item.pageSrc, mediaSrc: item.src)
+    func assetAtIndex(_ index: Int) -> AVURLAsset? {
+        if let item = itemAtIndex(index) {
+            return asset(for: item.pageSrc, mediaSrc: item.src)
+        }
+        return nil
     }
     
     func index(of pageSrc: String) -> Int? {
