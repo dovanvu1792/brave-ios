@@ -236,7 +236,7 @@ class NewTabPageViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        reportSponsoredImageBackgroundEvent(.viewed)
+//        reportSponsoredImageBackgroundEvent(.viewed)
         presentNotification()
     }
     
@@ -375,18 +375,18 @@ class NewTabPageViewController: UIViewController {
         backgroundView.imageConstraints?.landscapeCenter.update(offset: inset)
     }
     
-    private func reportSponsoredImageBackgroundEvent(_ event: NewTabPageAdEventType) {
-        guard let backgroundType = background.currentBackground?.type,
-              case .withBrandLogo = backgroundType,
-              let creativeInstanceId = background.currentBackground?.wallpaper.creativeInstanceId else {
-            return
-        }
-        rewards.ads.reportNewTabPageAdEvent(
-            background.wallpaperId.uuidString,
-            creativeInstanceId: creativeInstanceId,
-            eventType: event
-        )
-    }
+//    private func reportSponsoredImageBackgroundEvent(_ event: NewTabPageAdEventType) {
+//        guard let backgroundType = background.currentBackground?.type,
+//              case .withBrandLogo = backgroundType,
+//              let creativeInstanceId = background.currentBackground?.wallpaper.creativeInstanceId else {
+//            return
+//        }
+//        rewards.ads.reportNewTabPageAdEvent(
+//            background.wallpaperId.uuidString,
+//            creativeInstanceId: creativeInstanceId,
+//            eventType: event
+//        )
+//    }
     
     // MARK: - Notifications
     
@@ -672,7 +672,7 @@ class NewTabPageViewController: UIViewController {
         UIImpactFeedbackGenerator(style: .medium).bzzt()
         delegate?.navigateToInput(logo.destinationUrl, inNewTab: false, switchingToPrivateMode: false)
         
-        reportSponsoredImageBackgroundEvent(.clicked)
+//        reportSponsoredImageBackgroundEvent(.clicked)
     }
     
     private func tappedQRCode(_ code: String) {
